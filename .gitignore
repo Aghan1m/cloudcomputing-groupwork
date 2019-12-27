@@ -2,3 +2,5 @@ output/*
 out/*
 target/*
 .idea/*
+src/META-INF/*
+src/main/java/META-INF/*
