@@ -13,7 +13,7 @@ import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Mapper;
 
 
-public class RecommendMapper extends Mapper<LongWritable, Text, Text, DoubleWritable>{
+public class RecommendMapper extends Mapper<LongWritable, Text, Text, DoubleWritable> {
 
     Text k = new Text();
     DoubleWritable v = new DoubleWritable();
@@ -28,8 +28,8 @@ public class RecommendMapper extends Mapper<LongWritable, Text, Text, DoubleWrit
         super.setup(context);
         if (context.getCacheFiles() != null && context.getCacheFiles().length > 0) {
             //输入  101:101 5
-            //String path = context.getCacheFiles()[0].toString();
-            String path = context.getLocalCacheFiles()[0].getName();
+            String path = context.getCacheFiles()[0].toString();
+//            String path = context.getLocalCacheFiles()[0].getName();
             System.out.println("path="+path);
             File file = new File(path);
             FileReader fileReade = new FileReader(file);
@@ -70,33 +70,30 @@ public class RecommendMapper extends Mapper<LongWritable, Text, Text, DoubleWrit
     protected void map(LongWritable key, Text value, Context context)
             throws IOException, InterruptedException {
         //输入为用户评分矩阵    1	103:2.5,101:5,102:3
-        String[] str = value.toString().split("\t");
-        String userId = str[0];
+        String[] userRatingStr = value.toString().split("\t");
+        String userId = userRatingStr[0];
 
         //循环物品同现矩阵的行,计算各个物品
-        for(Map.Entry<String, Map<String, Double>> rowEntry : ItemOcurrenceMap.entrySet())
-        {
-            //要计算用户对其喜好度的itermId
-            String targetItemId = rowEntry.getKey();
+        for(Map.Entry<String, Map<String, Double>> itemOccurEntry : ItemOcurrenceMap.entrySet()) {
+            //要计算用户对其喜好度的itemId
+            String targetItemId = itemOccurEntry.getKey();
             //如果该物品已经被该用户评过分,说明该用户已经看过该物品了,跳过
             if(value.toString().contains(targetItemId))
-            {
                 continue;
-            }
+
             //总得分
             double totalScore = 0.0;
             //存储targetItemId的同现矩阵
-            Map<String, Double> curMap = rowEntry.getValue();
-            String[] strAttr = str[1].split(",");
-            for(int i = 0; i < strAttr.length; i++)
-            {
-                String itemId = strAttr[i].split(":")[0];
-                double per = Double.parseDouble(strAttr[i].split(":")[1]);
+            Map<String, Double> curMap = itemOccurEntry.getValue();
+            String[] userRatingPairs = userRatingStr[1].split(",");
+            for(int i = 0; i < userRatingPairs.length; i++) {    // 103:2.5,101:5,102:3
+                String itemId = userRatingPairs[i].split(":")[0];
+                double rating = Double.parseDouble(userRatingPairs[i].split(":")[1]);
                 double ocurrence = 0.0;
                 if (curMap.get(itemId) != null) {
                     ocurrence = curMap.get(itemId);
                 }
-                double score = per * ocurrence;
+                double score = rating * ocurrence;
                 totalScore += score;
             }
             k.set(userId + ":" + targetItemId);

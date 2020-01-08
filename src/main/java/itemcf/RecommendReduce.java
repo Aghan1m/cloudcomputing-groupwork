@@ -14,8 +14,7 @@ public class RecommendReduce extends Reducer<Text, DoubleWritable, Text, Text>{
     protected void reduce(Text key, Iterable<DoubleWritable> values,
                           Context context) throws IOException, InterruptedException {
         double totalScore = 0.0;
-        for(DoubleWritable d : values)
-        {
+        for(DoubleWritable d : values) {
             totalScore += d.get();
         }
         String str[] = key.toString().split(":");

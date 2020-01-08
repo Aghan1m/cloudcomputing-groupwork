@@ -10,7 +10,7 @@ import org.apache.hadoop.mapreduce.Reducer;
  * 将map的输出聚合为用户评分矩阵输出
  * 将UserId相同的所有评分记录进行汇总拼接，输出的key仍然为1，value形如：101:5,102:3,103:2.5
  */
-public class UserSocreMatrixReduce extends Reducer<Text, Text, Text, Text>{
+public class UserSocreMatrixReduce extends Reducer<Text, Text, Text, Text> {
 
     Text v = new Text();
     @Override
@@ -18,8 +18,7 @@ public class UserSocreMatrixReduce extends Reducer<Text, Text, Text, Text>{
             throws IOException, InterruptedException {
 
         String str = new String();
-        for(Text v : value)
-        {
+        for(Text v : value) {
             str += ",";
             str += v.toString();
         }
